@@ -1,0 +1,15 @@
+# Example: run the relay next to Komodo Core in the same compose project.
+services:
+  tg-relay:
+    image: ghcr.io/saveweb/komodo-tg-relay:v0.1.0
+    restart: unless-stopped
+    environment:
+      TG_BOT_TOKEN: ${TG_BOT_TOKEN}
+      TG_CHAT_ID: ${TG_CHAT_ID}
+      TG_THREAD_ID: ${TG_THREAD_ID:-}
+      KOMODO_HOST: ${KOMODO_HOST}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
