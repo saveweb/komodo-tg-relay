@@ -8,6 +8,7 @@ import html
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
@@ -61,8 +62,13 @@ def send(text):
     req = urllib.request.Request(
         f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
         data=body, headers={"Content-Type": "application/json"})
-    with urllib.request.urlopen(req, timeout=15) as r:
-        return r.status
+    try:
+        with urllib.request.urlopen(req, timeout=15) as r:
+            return r.status
+    except urllib.error.HTTPError as e:
+        # Telegram puts the reason in the body: {"ok":false,"description":"..."}
+        detail = e.read(2000).decode(errors="replace")
+        raise RuntimeError(f"telegram HTTP {e.code}: {detail}") from None
 
 
 class H(BaseHTTPRequestHandler):
